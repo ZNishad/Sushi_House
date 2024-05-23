@@ -19,8 +19,6 @@ namespace Sushi_House.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-
-
         private readonly IAuthService _authenticationService;
         public UserController(IAuthService authenticationService)
         {
@@ -78,7 +76,6 @@ namespace Sushi_House.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
 
         [HttpPut("{id}")]
