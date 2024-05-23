@@ -105,5 +105,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-//Scaffold -DbContext "Server=ZNISHAD\SQLEXPRESS;Database=Sushi;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
