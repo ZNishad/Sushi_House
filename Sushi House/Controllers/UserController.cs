@@ -97,3 +97,5 @@ namespace Sushi_House.Controllers
         }
     }
 }
+
+// Salam qaqa necesen?
