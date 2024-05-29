@@ -29,10 +29,12 @@ namespace Sushi_House.Services
             {
                 throw new ArgumentException("Failed to upload photo.");
             }
+
             if (photo.ContentType != "image/png" && photo.ContentType != "image/jpeg")
             {
                 throw new ArgumentException("Unsupported file type. Please upload a file with .png or .jpeg extension.");
             }
+
                 var filename = Guid.NewGuid().ToString() + Path.GetExtension(photo.FileName);
                 var filePath = Path.Combine(env.WebRootPath, "img", filename);
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -40,6 +42,7 @@ namespace Sushi_House.Services
                     photo.CopyTo(stream);
                 }
                 s.SushiPicName = filename;
+
                 _su.Sushis.Add(s);
                 _su.SaveChanges();
         }
@@ -54,16 +57,34 @@ namespace Sushi_House.Services
             {
                 throw new ArgumentException("Unsupported file type. Please upload a file with .png or .jpeg extension.");
             }
-                var filename = Guid.NewGuid().ToString() + Path.GetExtension(ph.FileName);
-                var filepath = Path.Combine(env.WebRootPath, "img", filename);
-                using (var strem = new FileStream(filepath, FileMode.Create))
+
+            var filename = Guid.NewGuid().ToString() + Path.GetExtension(ph.FileName);
+            var filepath = Path.Combine(env.WebRootPath, "img", filename);
+            using (var stream = new FileStream(filepath, FileMode.Create))
+            {
+                ph.CopyTo(stream);
+            }
+            set.SetPicName = filename;
+
+            using (var transaction = _su.Database.BeginTransaction())
+            {
+                try
                 {
-                    ph.CopyTo(strem);
+                    _su.Sets.Add(set);
+                    _su.SaveChanges();
+
+                    ss.SushiSetSetId = set.SetId;
+                    _su.SushiSets.Add(ss);
+                    _su.SaveChanges();
+
+                    transaction.Commit();
                 }
-                set.SetPicName = filename;
-                _su.Sets.Add(set);
-                _su.SushiSets.Add(ss);
-                _su.SaveChanges();
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception($"An error occurred while saving data: {ex.Message}");
+                }
+            }
         }
 
         public void DeleteSushi(int id)
@@ -89,6 +110,11 @@ namespace Sushi_House.Services
         public void PutSushi(int id, Sushi s, IFormFile photo, IWebHostEnvironment env)
         {
             Sushi OldSushi = _su.Sushis.FirstOrDefault(x => x.SushiId == id);
+            if (OldSushi == null)
+            {
+                throw new ArgumentException("User not found");
+            }
+
             if (photo == null || photo.Length == 0)
             {
                 throw new ArgumentException("Failed to upload photo.");
@@ -111,11 +137,6 @@ namespace Sushi_House.Services
                 photo.CopyTo(stream);
             }
 
-            if (OldSushi == null)
-            {
-                throw new ArgumentException("User not found");
-            }
-
             OldSushi.SushiName = s.SushiName;
             OldSushi.SushiTypeId = s.SushiTypeId;
             OldSushi.SushiPrice = s.SushiPrice;
@@ -133,7 +154,17 @@ namespace Sushi_House.Services
         public void PutSet(int id, SushiSet ss, Set set, IFormFile ph, IWebHostEnvironment env)
         {
             Set OldSet = _su.Sets.FirstOrDefault(x => x.SetId == id);
-            SushiSet OldSushiSet = _su.SushiSets.FirstOrDefault(x => x.SushiSetId == id);
+            if (OldSet == null)
+            {
+                throw new ArgumentException("Set not found");
+            }
+
+            SushiSet OldSushiSet = _su.SushiSets.FirstOrDefault(x => x.SushiSetSetId == id);
+            if (OldSushiSet == null)
+            {
+                throw new ArgumentException("SushiSet not found");
+            }
+
             if (ph == null || ph.Length == 0)
             {
                 throw new ArgumentException("Failed to upload photo.");
@@ -151,25 +182,28 @@ namespace Sushi_House.Services
             }
 
             var filePath = Path.Combine(env.WebRootPath, "img", OldSet.SetPicName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            using (var transaction = _su.Database.BeginTransaction())
             {
-                ph.CopyTo(stream);
-            }
+                try
+                {
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        ph.CopyTo(stream);
+                    }
 
-            if (OldSet == null && OldSushiSet == null)
-            {
-                throw new ArgumentException("User not found");
-            }
-            OldSet.SetName = set.SetName;
-            OldSushiSet.SushiSetSetId = ss.SushiSetSetId;
-            OldSushiSet.SushiSetSushiId = ss.SushiSetSushiId;
-            try
-            {
-                _su.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while saving data: {ex.Message}");
+                    OldSet.SetName = set.SetName;
+                    OldSushiSet.SushiSetSetId = ss.SushiSetSetId;
+                    OldSushiSet.SushiSetSushiId = ss.SushiSetSushiId;
+
+                    _su.SaveChanges();
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception($"An error occurred while saving data: {ex.Message}");
+                }
             }
         }
     }
