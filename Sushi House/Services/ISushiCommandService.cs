@@ -1,4 +1,5 @@
-﻿using Sushi_House.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Sushi_House.Models;
 
 namespace Sushi_House.Services
 {
@@ -8,5 +9,8 @@ namespace Sushi_House.Services
         void PostSet(SushiSet ss, Set set, IFormFile ph, IWebHostEnvironment env);
         void DeleteSushi(int id);
         void DeleteSet(int id);
+        void PutSushi(int id, Sushi s, IFormFile photo, IWebHostEnvironment env);
+        void PutSet(int id, SushiSet ss, Set set, IFormFile ph, IWebHostEnvironment env);
+
     }
 }

@@ -103,7 +103,7 @@ namespace Sushi_House.Controllers
         }
 
         [HttpDelete("Set")]
-        [Authorize(Policy ="UserStatusLimit")]
+        [Authorize(Policy = "UserStatusLimit")]
         public IActionResult DeleteSet(int id)
         {
             try
@@ -118,6 +118,44 @@ namespace Sushi_House.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPut("Sushi")]
+        [Authorize(Policy = "UserStatusLimit")]
+        public IActionResult PutSushi(int id, [FromForm] Sushi s, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
+        {
+            try
+            {
+                _sushiService.PutSushi(id, s, photo, env);
+                return Ok("User updated successfully");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPut("Set")]
+        [Authorize(Policy = "UserStatusLimit")]
+        public IActionResult PutSet(int id, [FromForm] SushiSet ss, [FromForm] Set set, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
+        {
+            try
+            {
+                _sushiService.PutSet(id, ss, set, ph, env);
+                return Ok("User updated successfully");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
     }
