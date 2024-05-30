@@ -23,6 +23,11 @@ namespace Sushi_House.Services
             return _su.Sets.Include(s => s.SushiSets).ToList();
         }
 
+        public List<Stype> GetStypes()
+        {
+            return _su.Stypes.ToList();
+        }
+
         public void PostSushi(Sushi s, IFormFile photo, IWebHostEnvironment env)
         {
             if (photo == null || photo.Length == 0)
@@ -47,7 +52,7 @@ namespace Sushi_House.Services
                 _su.SaveChanges();
         }
 
-        public void PostSet(SushiSet ss, Set set, IFormFile ph, IWebHostEnvironment env)
+        public async Task PostSet(Set set, Sushi su, IFormFile ph, IWebHostEnvironment env)
         {
             if (ph == null || ph.Length == 0)
             {
@@ -70,12 +75,16 @@ namespace Sushi_House.Services
             {
                 try
                 {
-                    _su.Sets.Add(set);
-                    _su.SaveChanges();
+                   var added =  _su.Sets.AddAsync(set).Result.Entity;
+                   await  _su.SaveChangesAsync();
 
-                    ss.SushiSetSetId = set.SetId;
-                    _su.SushiSets.Add(ss);
-                    _su.SaveChanges();
+
+                    foreach (var item in set.SushiSets)
+                    {
+                        var rel = new SushiSet { SushiSetSetId = added.SetId, SushiSetSushiId = su.SushiId };
+                        _su.SushiSets.Add(rel);
+                    }
+                   await  _su.SaveChangesAsync();
 
                     transaction.Commit();
                 }
@@ -205,6 +214,11 @@ namespace Sushi_House.Services
                     throw new Exception($"An error occurred while saving data: {ex.Message}");
                 }
             }
+        }
+
+        public List<Stype> GetStype()
+        {
+            throw new NotImplementedException();
         }
     }
 }

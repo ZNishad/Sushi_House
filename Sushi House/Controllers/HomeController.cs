@@ -17,8 +17,14 @@ namespace Sushi_House.Controllers
             _sushiService = sushiService;
         }
 
+        // Remove try cath all over the application
+        // 1. Create midleware for custom exception handling
+        // 2. Remove all Protocoles instead off structor with versioning
+        // 3. Change all request and response models to DTOs
+        // 4. Make all request asyn
+
         [HttpGet("sushi")]
-        public ActionResult<List<Sushi>> GetSushi()
+        public IActionResult GetSushi()
         {
             try
             {
@@ -32,12 +38,26 @@ namespace Sushi_House.Controllers
         }
 
         [HttpGet("Set")]
-        public ActionResult<List<Set>> GetSet()
+        public IActionResult GetSet()
         {
             try
             {
                 var sets = _sushiService.GetSet();
                 return Ok(sets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("Type")]
+        public IActionResult GetType()
+        {
+            try
+            {
+                var types = _sushiService.GetType();
+                return Ok(types);
             }
             catch (Exception ex)
             {
@@ -66,12 +86,12 @@ namespace Sushi_House.Controllers
 
         [HttpPost("Set")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PostSet([FromForm] SushiSet ss, [FromForm] Set set, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
+        public IActionResult PostSet(Set set, Sushi su, IFormFile ph, IWebHostEnvironment env)
         {
             try
             {
-                _sushiService.PostSet(ss, set, ph, env);
-                return Ok(ss);
+                _sushiService.PostSet(set, su, ph, env);
+                return Ok(set);
             }
             catch (ArgumentException ex)
             {

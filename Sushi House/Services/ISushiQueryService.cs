@@ -6,5 +6,6 @@ namespace Sushi_House.Services
     {
         List<Sushi> GetSushi();
         List<Set> GetSet();
+        List<Stype> GetStype();
     }
 }

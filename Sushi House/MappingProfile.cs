@@ -8,6 +8,6 @@ namespace Sushi_House
         public MappingProfile()
         {
             CreateMap<UserDTO, User>().ReverseMap();
-        } 
+        }
     }
 }
