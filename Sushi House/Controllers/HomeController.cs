@@ -67,7 +67,7 @@ namespace Sushi_House.Controllers
 
         [HttpPost("sushi")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PostSushi([FromForm] Sushi s, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
+        public IActionResult PostSushi([FromBody] Sushi s, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace Sushi_House.Controllers
 
         [HttpPost("Set")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PostSet(Set set, Sushi su, IFormFile ph, IWebHostEnvironment env)
+        public IActionResult PostSet([FromBody]Set set, [FromForm] Sushi su, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
         {
             try
             {
@@ -143,7 +143,7 @@ namespace Sushi_House.Controllers
 
         [HttpPut("Sushi")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PutSushi(int id, [FromForm] Sushi s, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
+        public IActionResult PutSushi(int id, [FromBody] Sushi s, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
         {
             try
             {
@@ -162,7 +162,7 @@ namespace Sushi_House.Controllers
 
         [HttpPut("Set")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PutSet(int id, [FromForm] SushiSet ss, [FromForm] Set set, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
+        public IActionResult PutSet(int id, [FromBody] SushiSet ss, [FromForm] Set set, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
         {
             try
             {

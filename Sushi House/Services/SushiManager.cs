@@ -23,7 +23,7 @@ namespace Sushi_House.Services
             return _su.Sets.Include(s => s.SushiSets).ToList();
         }
 
-        public List<Stype> GetStypes()
+        public List<Stype> GetType()
         {
             return _su.Stypes.ToList();
         }
@@ -213,11 +213,6 @@ namespace Sushi_House.Services
                     throw new Exception($"An error occurred while saving data: {ex.Message}");
                 }
             }
-        }
-
-        public List<Stype> GetStype()
-        {
-            throw new NotImplementedException();
         }
     }
 }
