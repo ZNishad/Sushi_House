@@ -28,7 +28,7 @@ namespace Sushi_House.Services
             return _su.Stypes.ToList();
         }
 
-        public void PostSushi(Sushi s, IFormFile photo, IWebHostEnvironment env)
+        public async Task PostSushi(Sushi s, IFormFile photo, IWebHostEnvironment env)
         {
             if (photo == null || photo.Length == 0)
             {
@@ -48,8 +48,8 @@ namespace Sushi_House.Services
                 }
                 s.SushiPicName = filename;
 
-                _su.Sushis.Add(s);
-                _su.SaveChanges();
+                await _su.Sushis.AddAsync(s);
+                await _su.SaveChangesAsync();
         }
 
         public async Task PostSet(Set set, Sushi su, IFormFile ph, IWebHostEnvironment env)
@@ -75,16 +75,15 @@ namespace Sushi_House.Services
             {
                 try
                 {
-                   var added =  _su.Sets.AddAsync(set).Result.Entity;
-                   await  _su.SaveChangesAsync();
-
+                    var added =  _su.Sets.AddAsync(set).Result.Entity;
+                    await  _su.SaveChangesAsync();
 
                     foreach (var item in set.SushiSets)
                     {
                         var rel = new SushiSet { SushiSetSetId = added.SetId, SushiSetSushiId = su.SushiId };
                         _su.SushiSets.Add(rel);
                     }
-                   await  _su.SaveChangesAsync();
+                    await  _su.SaveChangesAsync();
 
                     transaction.Commit();
                 }
@@ -116,7 +115,7 @@ namespace Sushi_House.Services
             _su.SaveChanges();
         }
 
-        public void PutSushi(int id, Sushi s, IFormFile photo, IWebHostEnvironment env)
+        public async Task PutSushi(int id, Sushi s, IFormFile photo, IWebHostEnvironment env)
         {
             Sushi OldSushi = _su.Sushis.FirstOrDefault(x => x.SushiId == id);
             if (OldSushi == null)
@@ -152,7 +151,7 @@ namespace Sushi_House.Services
             OldSushi.SushiInqr = s.SushiInqr;
             try
             {
-            _su.SaveChanges();
+            await _su.SaveChangesAsync();
             }
             catch (Exception ex)
             {
