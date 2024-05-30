@@ -21,6 +21,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<SushiContext>();
 builder.Services.AddScoped<IAuthService, AuthenticationManager>();
+builder.Services.AddScoped<ISushiService, SushiManager>();
 builder.Services.AddSwaggerGen(c =>
 {
     var securityScheme = new OpenApiSecurityScheme

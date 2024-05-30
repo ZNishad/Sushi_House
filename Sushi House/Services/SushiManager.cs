@@ -5,7 +5,7 @@ using Sushi_House.Models;
 
 namespace Sushi_House.Services
 {
-    public class SushiManager:ISushiService
+    public class SushiManager : ISushiService
     {
         private readonly SushiContext _su;
         public SushiManager(SushiContext su)
@@ -23,7 +23,7 @@ namespace Sushi_House.Services
             return _su.Sets.Include(s => s.SushiSets).ToList();
         }
 
-        public List<Stype> GetType()
+        public List<Stype> GetSType()
         {
             return _su.Stypes.ToList();
         }

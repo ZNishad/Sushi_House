@@ -6,7 +6,7 @@ namespace Sushi_House.Models
     {
         List<Sushi> GetSushi();
         List<Set> GetSet();
-        List<Stype> GetType();
+        List<Stype> GetSType();
         Task PostSushi(Sushi s, IFormFile photo, IWebHostEnvironment env);
         Task PostSet(Set set, Sushi su, IFormFile ph, IWebHostEnvironment env);
         void DeleteSushi(int id);

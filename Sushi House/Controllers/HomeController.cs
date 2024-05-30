@@ -52,11 +52,11 @@ namespace Sushi_House.Controllers
         }
 
         [HttpGet("Type")]
-        public IActionResult GetType()
+        public IActionResult GetSType()
         {
             try
             {
-                var types = _sushiService.GetType();
+                var types = _sushiService.GetSType();
                 return Ok(types);
             }
             catch (Exception ex)
