@@ -21,7 +21,6 @@ namespace Sushi_House.Controllers
         // 1. Create midleware for custom exception handling
         // 2. Remove all Protocoles instead off structor with versioning
         // 3. Change all request and response models to DTOs
-        // 4. Make all request asyn
 
         [HttpGet("sushi")]
         public IActionResult GetSushi()
@@ -162,11 +161,11 @@ namespace Sushi_House.Controllers
 
         [HttpPut("Set")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PutSet(int id, [FromBody] SushiSet ss, [FromForm] Set set, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
+        public IActionResult PutSet(int id, [FromBody] Sushi su, [FromForm] Set set, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
         {
             try
             {
-                _sushiService.PutSet(id, ss, set, ph, env);
+                _sushiService.PutSet(id, su, set, ph, env);
                 return Ok("User updated successfully");
             }
             catch (ArgumentException ex)
