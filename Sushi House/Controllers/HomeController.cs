@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Sushi_House.DTOModels;
 using Sushi_House.Models;
 using Sushi_House.Services;
 
@@ -20,7 +21,6 @@ namespace Sushi_House.Controllers
         // Remove try cath all over the application
         // 1. Create midleware for custom exception handling
         // 2. Remove all Protocoles instead off structor with versioning
-        // 3. Change all request and response models to DTOs
 
         [HttpGet("sushi")]
         public IActionResult GetSushi()
@@ -66,12 +66,12 @@ namespace Sushi_House.Controllers
 
         [HttpPost("sushi")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PostSushi([FromBody] Sushi s, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
+        public IActionResult PostSushi([FromBody] SushiDTO sushiDto,[FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
         {
             try
             {
-                _sushiService.PostSushi(s, photo, env);
-                return Ok(s);
+                _sushiService.PostSushi(sushiDto, photo, env);
+                return Ok(sushiDto);
             }
             catch (ArgumentException ex)
             {
@@ -85,12 +85,12 @@ namespace Sushi_House.Controllers
 
         [HttpPost("Set")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PostSet([FromBody]Set set, [FromForm] Sushi su, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
+        public IActionResult PostSet([FromBody] SetDTO setDto, [FromForm] List<SushiDTO> sushiDtos, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
         {
             try
             {
-                _sushiService.PostSet(set, su, ph, env);
-                return Ok(set);
+                _sushiService.PostSet(setDto, sushiDtos, photo, env);
+                return Ok(setDto);
             }
             catch (ArgumentException ex)
             {
@@ -142,11 +142,11 @@ namespace Sushi_House.Controllers
 
         [HttpPut("Sushi")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PutSushi(int id, [FromBody] Sushi s, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
+        public IActionResult PutSushi(int id, [FromBody] SushiDTO sushiDto, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
         {
             try
             {
-                _sushiService.PutSushi(id, s, photo, env);
+                _sushiService.PutSushi(id, sushiDto, photo, env);
                 return Ok("User updated successfully");
             }
             catch (ArgumentException ex)
@@ -161,11 +161,11 @@ namespace Sushi_House.Controllers
 
         [HttpPut("Set")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PutSet(int id, [FromBody] Sushi su, [FromForm] Set set, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
+        public IActionResult PutSet(int id, [FromBody] SetDTO setDto, [FromForm] List<SushiDTO> sushiDtos, [FromForm] IFormFile ph, [FromServices] IWebHostEnvironment env)
         {
             try
             {
-                _sushiService.PutSet(id, su, set, ph, env);
+                _sushiService.PutSet(id, setDto, sushiDtos, ph, env);
                 return Ok("User updated successfully");
             }
             catch (ArgumentException ex)

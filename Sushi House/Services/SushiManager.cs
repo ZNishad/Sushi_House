@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Sushi_House.DTOModels;
+using Sushi_House.Mapping;
 using Sushi_House.Models;
 
 namespace Sushi_House.Services
@@ -13,22 +15,25 @@ namespace Sushi_House.Services
             _su = su;
         }
 
-        public async Task<List<Sushi>> GetSushi()
+        public async Task<List<SushiDTO>> GetSushi()
         {
-            return await _su.Sushis.Include(s => s.SushiSets).ToListAsync();
+            var sushis = await _su.Sushis.Include(s => s.SushiSets).ToListAsync();
+            return sushis.Select(SushiMapper.toDTO).ToList();
         }
 
-        public async Task<List<Set>> GetSet()
+        public async Task<List<SetDTO>> GetSet()
         {
-            return await _su.Sets.Include(s => s.SushiSets).ToListAsync ();
+            var sets = await _su.Sets.Include(s => s.SushiSets).ToListAsync();
+            return sets.Select(SetMapper.toDTO).ToList();
         }
 
-        public async Task<List<Stype>> GetSType()
+        public async Task<List<STypeDTO>> GetSType()
         {
-            return await _su.Stypes.ToListAsync();
+            var stype = await _su.Stypes.ToListAsync();
+            return stype.Select(STypeMapper.toDTO).ToList();
         }
 
-        public async Task PostSushi(Sushi s, IFormFile photo, IWebHostEnvironment env)
+        public async Task PostSushi(SushiDTO sushiDto, IFormFile photo, IWebHostEnvironment env)
         {
             if (photo == null || photo.Length == 0)
             {
@@ -50,9 +55,10 @@ namespace Sushi_House.Services
                     {
                         await photo.CopyToAsync(stream);
                     }
-                    s.SushiPicName = filename;
+                    var sushi = SushiMapper.toEntity(sushiDto);
+                    sushi.SushiPicName = filename;
 
-                    await _su.Sushis.AddAsync(s);
+                    await _su.Sushis.AddAsync(sushi);
                     await _su.SaveChangesAsync();
 
                     await transaction.CommitAsync();
@@ -65,7 +71,7 @@ namespace Sushi_House.Services
             }
         }
 
-        public async Task PostSet(Set set, Sushi su, IFormFile ph, IWebHostEnvironment env)
+        public async Task PostSet(SetDTO setDto, List<SushiDTO> sushiDtos, IFormFile ph, IWebHostEnvironment env)
         {
             if (ph == null || ph.Length == 0)
             {
@@ -86,17 +92,22 @@ namespace Sushi_House.Services
                     {
                         await ph.CopyToAsync(stream);
                     }
+                    var set = SetMapper.toEntity(setDto);
                     set.SetPicName = filename;
 
-                    var added =  _su.Sets.AddAsync(set).Result.Entity;
-                    await  _su.SaveChangesAsync();
+                    var addSet = (await _su.Sets.AddAsync(set)).Entity;
+                    await _su.SaveChangesAsync();
 
-                    foreach (var item in set.SushiSets)
+                    foreach (var sushiDto in sushiDtos)
                     {
-                        var rel = new SushiSet { SushiSetSetId = added.SetId, SushiSetSushiId = su.SushiId };
-                        await _su.SushiSets.AddAsync(rel);
+                        var sushiSet = new SushiSet
+                        {
+                            SushiSetSetId = addSet.SetId,
+                            SushiSetSushiId = sushiDto.SushiId
+                        };
+                        await _su.SushiSets.AddAsync(sushiSet);
                     }
-                    await  _su.SaveChangesAsync();
+                    await _su.SaveChangesAsync();
 
                     await transaction.CommitAsync();
                 }
@@ -128,7 +139,7 @@ namespace Sushi_House.Services
             }
         }
 
-        public async Task PutSushi(int id, Sushi s, IFormFile photo, IWebHostEnvironment env)
+        public async Task PutSushi(int id, SushiDTO sushiDto, IFormFile photo, IWebHostEnvironment env)
         {
             var OldSushi = await _su.Sushis.FirstOrDefaultAsync(x => x.SushiId == id);
             if (OldSushi == null)
@@ -162,10 +173,10 @@ namespace Sushi_House.Services
                         await photo.CopyToAsync(stream);
                     }
 
-                    OldSushi.SushiName = s.SushiName;
-                    OldSushi.SushiTypeId = s.SushiTypeId;
-                    OldSushi.SushiPrice = s.SushiPrice;
-                    OldSushi.SushiInqr = s.SushiInqr;
+                    OldSushi.SushiName = sushiDto.SushiName;
+                    OldSushi.SushiTypeId = sushiDto.SushiTypeId;
+                    OldSushi.SushiPrice = sushiDto.SushiPrice;
+                    OldSushi.SushiInqr = sushiDto.SushiInqr;
                     await _su.SaveChangesAsync();
 
                     await transaction.CommitAsync();
@@ -178,15 +189,15 @@ namespace Sushi_House.Services
             }
         }
 
-        public async Task PutSet(int id, Sushi su, Set set, IFormFile ph, IWebHostEnvironment env)
+        public async Task PutSet(int id, SetDTO setDto, List<SushiDTO> sushiDtos,  IFormFile ph, IWebHostEnvironment env)
         {
-            var OldSet = await _su.Sets.FirstOrDefaultAsync(x => x.SetId == id);
-            if (OldSet == null)
+            var oldSet = await _su.Sets.FirstOrDefaultAsync(x => x.SetId == id);
+            if (oldSet == null)
             {
                 throw new ArgumentException("Set not found");
             }
 
-            var OldSushiSet = _su.SushiSets.Where(x => x.SushiSetSetId == id).ToList();
+            var oldSushiSet = _su.SushiSets.Where(x => x.SushiSetSetId == id).ToList();
 
             if (ph == null || ph.Length == 0)
             {
@@ -197,14 +208,14 @@ namespace Sushi_House.Services
                 throw new ArgumentException("Unsupported file type. Please upload a file with .png or .jpeg extension.");
             }
 
-            string oldExtension = Path.GetExtension(OldSet.SetPicName).ToLower();
+            string oldExtension = Path.GetExtension(oldSet.SetPicName).ToLower();
             string newExtension = Path.GetExtension(ph.FileName).ToLower();
             if (newExtension != oldExtension)
             {
                 throw new ArgumentException($"Uploaded file must have the same extension as the previous file ({oldExtension}).");
             }
 
-            var filePath = Path.Combine(env.WebRootPath, "img", OldSet.SetPicName);
+            var filePath = Path.Combine(env.WebRootPath, "img", oldSet.SetPicName);
             using (var transaction = await _su.Database.BeginTransactionAsync())
             {
                 try
@@ -214,11 +225,30 @@ namespace Sushi_House.Services
                         await ph.CopyToAsync(stream);
                     }
 
-                    OldSet.SetName = set.SetName;
-                    foreach(var item in OldSushiSet)
+                    oldSet.SetName = setDto.SetName;
+
+                    if (oldSushiSet.Count == sushiDtos.Count)
                     {
-                        item.SushiSetSushiId = su.SushiId;
+                        for (int i = 0; i < oldSushiSet.Count && i < sushiDtos.Count; i++)
+                        {
+                            oldSushiSet[i].SushiSetSushiId = sushiDtos[i].SushiId;
+                        }
                     }
+                    else
+                    {
+                        _su.SushiSets.RemoveRange(oldSushiSet);
+
+                        foreach (var sushiDto in sushiDtos)
+                        {
+                            var newSushiSet = new SushiSet
+                            {
+                                SushiSetSetId = id,
+                                SushiSetSushiId = sushiDto.SushiId
+                            };
+                            _su.SushiSets.Add(newSushiSet);
+                        }
+                    }
+
                     await _su.SaveChangesAsync();
 
                     await transaction.CommitAsync();
