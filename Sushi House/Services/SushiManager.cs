@@ -100,7 +100,8 @@ namespace Sushi_House.Services
         public async Task DeleteSushi(int id)
         {
             var sushi = await _su.Sushis.FirstOrDefaultAsync(x => x.SushiId == id);
-            if (sushi == null) throw new ArgumentException("Sushi not found");
+            if (sushi == null)
+                throw new ArgumentException("Sushi not found");
 
             _su.Sushis.Remove(sushi);
             await _su.SaveChangesAsync();
@@ -109,7 +110,8 @@ namespace Sushi_House.Services
         public async Task DeleteSet(int id)
         {
             var set = await _su.Sets.FirstOrDefaultAsync(x => x.SetId == id);
-            if (set == null) throw new ArgumentException("Set not found");
+            if (set == null) 
+                throw new ArgumentException("Set not found");
 
             _su.Sets.Remove(set);
             await _su.SaveChangesAsync();
