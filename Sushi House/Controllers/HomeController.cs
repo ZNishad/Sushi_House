@@ -66,7 +66,7 @@ namespace Sushi_House.Controllers
 
         [HttpPost("sushi")]
         [Authorize(Policy = "UserStatusLimit")]
-        public IActionResult PostSushi([FromBody] SushiDTO sushiDto,[FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
+        public IActionResult PostSushi([FromBody] SushiDTO sushiDto, [FromForm] IFormFile photo, [FromServices] IWebHostEnvironment env)
         {
             try
             {
