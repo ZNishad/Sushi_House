@@ -18,10 +18,6 @@ namespace Sushi_House.Controllers
             _sushiService = sushiService;
         }
 
-        // Remove try cath all over the application
-        // 1. Create midleware for custom exception handling
-        // 2. Remove all Protocoles instead off structor with versioning
-
         [HttpGet("sushi")]
         public IActionResult GetSushi()
         {
