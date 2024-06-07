@@ -14,7 +14,6 @@ namespace Sushi_House.Models
         Task DeleteSet(int id);
         Task PutSushi(int id, SushiDTO sushiDto, IFormFile photo, IWebHostEnvironment env);
         Task PutSet(int id, SetDTO setDto, List<SushiDTO> sushiDtos, IFormFile ph, IWebHostEnvironment env);
-
     }
 }
 

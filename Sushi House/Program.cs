@@ -94,6 +94,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
 }
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
